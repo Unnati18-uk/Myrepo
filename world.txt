@@ -1,2 +1,6 @@
 hello world.
+<<<<<<< HEAD
 how are u
+=======
+Here we can do some changes 
+>>>>>>> a65c57c (gsfh)
