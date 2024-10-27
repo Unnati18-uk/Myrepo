@@ -1,4 +1,2 @@
 hello world.
-Here we can do some changes 
-then we can add them
-hi 
+how are u
