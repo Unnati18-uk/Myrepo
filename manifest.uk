@@ -1,0 +1,306 @@
+----------------------------------------------------------
+
+for deployement
+----------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+ ----------------------------------------------------
+for service
+---------------------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  selector:
+    app: nginx
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: NodePort
+-------------------------------------------------------
+for cluster
+-----------------------------------------------------
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: my-cluster
+  region: eu-west-3
+nodeGroups:
+  - name: linux-nodes
+    instanceType: t2.medium
+    desiredCapacity: 1
+    volumeSize: 20
+    ssh:
+      enableSsm: true
+
+--------------------------------------------------------------------
+for ingress deployment
+----------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: home-app
+  labels:
+    app: home
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: home
+  template:
+    metadata:
+      labels:
+        app: home
+    spec:
+      containers:
+        - name: home-app
+          image: <aws_account_id>.dkr.ecr.<region>.amazonaws.com/home:latest
+          ports:
+            - containerPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: laptop-app
+  labels:
+    app: laptop
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: laptop
+  template:
+    metadata:
+      labels:
+        app: laptop
+    spec:
+      containers:
+        - name: laptop-app
+          image: <aws_account_id>.dkr.ecr.<region>.amazonaws.com/laptop:latest
+          ports:
+            - containerPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mobile-app
+  labels:
+    app: mobile
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: mobile
+  template:
+    metadata:
+      labels:
+        app: mobile
+    spec:
+      containers:
+        - name: mobile-app
+          image: <aws_account_id>.dkr.ecr.<region>.amazonaws.com/mobile:latest
+          ports:
+            - containerPort: 80
+
+## take image from ecr and write in the place of image
+------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------
+manifest for services(clusterip)for home ,laptop,mobile for ingress
+-----------------------------------------------------------------------------
+---------------------------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: home-service
+spec:
+  selector:
+    app: home
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 80
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: laptop-service
+spec:
+  selector:
+    app: laptop
+  ports:
+    - protocol: TCP
+      port: 8081
+      targetPort: 80
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mobile-service
+spec:
+  selector:
+    app: mobile
+  ports:
+    - protocol: TCP
+      port: 8082
+      targetPort: 80
+  type: ClusterIP
+-------------------------------------------------------------
+-------------------------------------------------------
+configmap
+----------------------------------------------------
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-config
+data:
+  app.name: my-app
+  app.version: "1.0"
+  server.port: "443"
+------------------------------------------------
+
+configmap as a evn variable
+
+-------------------------------------
+apiVersion: v1
+kind: Pod
+metadata:
+  name: configmap-env-pod
+spec:
+  containers:
+    - name: my-container
+      image: nginx
+      envFrom:
+        - configMapRef:
+            name: my-config
+
+-----------------------------------------------------
+specific key from config as rnv variable
+---------------------------------------------
+apiVersion: v1
+kind: Pod
+metadata:
+  name: key-config-pod
+spec:
+  containers:
+    - name: my-container01
+      image: nginx
+      env:
+        - name: APP_NAME          
+          valueFrom:
+            configMapKeyRef:
+              name: my-config     
+              key: app.name       
+---------------------------------------------------------------
+
+env varibale as a volume
+---------------------------------------------
+apiVersion: v1
+kind: Pod
+metadata:
+  name: configmap-volume-pod
+spec:
+  containers:
+    - name: my-container
+      image: nginx
+      volumeMounts:
+        - name: config-volume
+          mountPath: /opt  
+  volumes:
+    - name: config-volume
+      configMap:
+        name: my-config 
+------------------------------------------------------------
+secrets
+-------------------------------------------------------------
+  apiVersion: v1
+kind: Secret
+metadata:
+  name: my-secret
+  namespace: default  # You can specify the namespace here
+type: Opaque  # Default type for generic secrets
+data:
+  username: bXl1c2Vy                       # Base64 encoded value of "myuser"
+  password: bXlwYXNzd29yZA==             # Base64 encoded value of "mypassword"
+  email: bXl1c2VyQG1haWwuY29t                       # Base64 encoded value of "myuser@mail.com"
+  email-password: bXlwYXNzd29yZA==                     # Base64 encoded value of "mypassword"
+-------------------------------------------------------------------------
+
+secret as a env variable
+---------------------------------------------------------
+apiVersion: v1
+kind: Pod
+metadata:
+  name: secret-env-pod02
+spec:
+  containers:
+    - name: my-container
+      image: nginx
+      envFrom:
+        - secretRef:
+            name: my-secret
+------------------------------------------------------
+
+secret as a key env variable
+-----------------------------------------------------
+apiVersion: v1
+kind: Pod
+metadata:
+  name: key-secret-pod
+spec:
+  containers:
+    - name: my-container01
+      image: nginx
+      env:
+        - name: USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: my-secret
+              key: username
+        - name: EMAIL
+          valueFrom:
+            secretKeyRef:
+              name: my-secret
+              key: email
+-------------------------------------------------
+secret as a volume
+-----------------------------------------------
+                                                      
+apiVersion: v1
+kind: Pod
+metadata:
+  name: volume-secret-pod
+spec:
+  containers:
+    - name: my-container
+      image: nginx
+      volumeMounts:
+        - name: secret-volume
+          mountPath: /mnt
+  volumes:
+    - name: secret-volume
+      secret:
+        secretName: my-secret
+                                                                    
