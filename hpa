@@ -1,0 +1,124 @@
+
+install metrix server
+--------------------------------------------------------------------------
+command- kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+
+MANIFEST FOR DEPLOY
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+      - name: my-app-container
+        image: nginx
+        resources:
+          requests:
+            cpu: "100m"  # Minimum CPU requirement
+            memory: "128Mi"  # Minimum memory requirement
+          limits:
+            cpu: "500m"  # Maximum CPU limit
+            memory: "512Mi"  # Maximum memory limit
+        ports:
+        - containerPort: 80
+
+
+
+
+
+
+-----------------------------------------------------------------------------------------------------------
+
+
+MANIFEST FOR HPA
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: my-app-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: my-app
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 30 # Target CPU utilization percentage
+
+
+------------------------------------------------------------------------------------------------------------------
+
+history of these task
+----------------------------------------
+
+
+ clear
+    2  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+    3  unzip awscliv2.zip
+    4  sudo ./aws/install
+    5  apt install unzip
+    6  clear
+    7  vim cluster.yml
+    8  eksctl create cluster -f cluster.yml
+    9  snap install kubectl --classic
+   10  ls
+   11  kubectl get pods
+   12  snap install kubectl --classic
+   13  snap help refresh
+   14  ls
+   15  kubectl get pods
+   16  vim cluster.yml
+   17  ./kubectl get pods
+   18  ls
+   19  systemctl status kubectl
+   20  aws eks --region us-west-1 update-kubeconfig --name my-cluster
+   21  aws --version
+   22  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+   23  unzip awscliv2.zip
+   24  sudo ./aws/install
+   25  aws --version
+   26  kubectl get pods
+   27  aws eks --region us-west-1 update-kubeconfig --name my-cluster
+   28  kubectl get pods
+   29  ls
+   30  vim deployment.yml
+   31  ls
+   32  kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+   33  kubectl top pods
+   34  kubectl get pods -n kube-system
+   35  vim deployment.yml
+   36  kubectl apply -f deployment.yml
+   37  kubectl get pods
+   38  kubectl describe pod my-app-6844945889-7tmf6
+   39  kubectl top pods
+   40  vim hpa.yml
+   41  kubectl apply -f hpa.yml
+   42  kubectl get hpa
+   43  kubectl get pods
+   44  kubectl top pods
+   45  kubectl exec -it my-app-6844945889-7tmf6 -- bash
+   46  kubectl top pods
+   47  kubectl get pods
+   48  history
+
+
+
+
+
