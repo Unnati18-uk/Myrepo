@@ -1,4 +1,89 @@
-welcome
-here i can do changes in my remote repo
-hii
-helo
+cluster
+
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: rr-cluster1
+  region: ap-northeast-1
+nodeGroups:
+  - name: linux-nodes1
+    instanceType: t2.medium
+    desiredCapacity: 1
+    volumeSize: 20
+    ssh:
+      enableSsm: true
+--------------------------------------------------------------
+deployment
+--------------------------------------------------
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clonefb
+  labels:
+    app: clonefb
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: clonefb
+  template:
+    metadata:
+      labels:
+        app: clonefb
+    spec:
+      containers:
+      - name: clonefb
+        image: 156041400607.dkr.ecr.ap-northeast-1.amazonaws.com/frontend-repo:latest
+        ports:
+        - containerPort: 8080
+
+
+------------------------------------------
+service
+--------------------------------------------------
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: clonefb-service
+spec:
+  selector:
+    app: clonefb
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
