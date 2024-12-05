@@ -6,19 +6,19 @@ Policy:
     --policy-document file://iam_policy.json
 
 
-  ##output: arn:aws:iam::156041400607:policy/rr-cluster1-ingress-policy
+  ##output: arn:aws:iam::585008071590:policy/rr-cluster1-ingress-policy
 
 ---
 eksctl:
 
-  eksctl utils associate-iam-oidc-provider --region=ap-northeast-1 --cluster=rr-cluster1 --approve
+  eksctl utils associate-iam-oidc-provider --region=ap-southeast-2 --cluster=rr-cluster1 --approve
 
   eksctl create iamserviceaccount \
-  --cluster=rr-cluster1 --region=ap-northeast-1 \
+  --cluster=rr-cluster1 --region=ap-southeast-2 \
   --namespace=kube-system \
   --name=aws-load-balancer-controller \
   --role-name rr-cluster1-ingress-role \
-  --attach-policy-arn=arn:aws:iam::156041400607:policy/rr-cluster1-ingress-policy \
+  --attach-policy-arn=arn:aws:iam::585008071590:policy/rr-cluster1-ingress-policy \
   --approve
 
 cert-manager:
@@ -38,7 +38,7 @@ AWS Load Balancer Controller:
 Verify:
   kubectl get deployment -n kube-system aws-load-balancer-controller
   kubectl get pods -n kube-system
-  kubectl logs -f aws-load-balancer-controller-6b7fd57b48-hvvf5
+  kubectl logs -f aws-load-balancer-controller-6dd844cb57-jprtd 
 
   ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
