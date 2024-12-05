@@ -2,23 +2,23 @@ Policy:
    curl -O https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.7.2/docs/install/iam_policy.json
 
   aws iam create-policy \
-    --policy-name rr-cluster1-ingress-policy \
+    --policy-name rr-cluster-ingress-policy \
     --policy-document file://iam_policy.json
 
 
-  ##output: arn:aws:iam::585008071590:policy/rr-cluster1-ingress-policy
+  ##output: arn:aws:iam::585008071590:policy/rr-cluster-ingress-policy
 
 ---
 eksctl:
 
-  eksctl utils associate-iam-oidc-provider --region=ap-southeast-2 --cluster=rr-cluster1 --approve
+  eksctl utils associate-iam-oidc-provider --region=ap-northeast-1 --cluster=rr-cluster --approve
 
   eksctl create iamserviceaccount \
-  --cluster=rr-cluster1 --region=ap-southeast-2 \
+  --cluster=rr-cluster --region=ap-northeast-1 \
   --namespace=kube-system \
   --name=aws-load-balancer-controller \
-  --role-name rr-cluster1-ingress-role \
-  --attach-policy-arn=arn:aws:iam::585008071590:policy/rr-cluster1-ingress-policy \
+  --role-name rr-cluster-ingress-role \
+  --attach-policy-arn=arn:aws:iam::585008071590:policy/rr-cluster-ingress-policy \
   --approve
 
 cert-manager:
@@ -30,7 +30,7 @@ AWS Load Balancer Controller:
   curl -Lo v2_7_2_full.yaml https://github.com/kubernetes-sigs/aws-load-balancer-controller/releases/download/v2.7.2/v2_7_2_full.yaml
   sed -i.bak -e '596,604d' ./v2_7_2_full.yaml
 
-  sed -i.bak -e 's|your-cluster-name|rr-cluster1|' ./v2_7_2_full.yaml
+  sed -i.bak -e 's|your-cluster-name|rr-cluster|' ./v2_7_2_full.yaml
   kubectl apply -f v2_7_2_full.yaml
   curl -Lo v2_7_2_ingclass.yaml https://github.com/kubernetes-sigs/aws-load-balancer-controller/releases/download/v2.7.2/v2_7_2_ingclass.yaml
   kubectl apply -f v2_7_2_ingclass.yaml
