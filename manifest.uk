@@ -303,4 +303,48 @@ spec:
     - name: secret-volume
       secret:
         secretName: my-secret
-                                                                    
+
+---------------------------------------------------------------------------------------
+REPLICASET
+------------------------------------------------------------------------
+
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: nginx-replicaset
+  labels:
+    app: app-container
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: app-container
+  template:
+    metadata:
+      labels:
+        app: app-container
+    spec:
+      containers:
+        - name: app-container
+          image: nginx
+          ports:
+            - containerPort: 80
+
+-------------------------------------------------------------------------------------------------
+POD
+-----------------------------------------------------------------------------
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod01
+  labels:
+    app: app-container
+spec:
+  containers:
+    - name: app-container
+      image: nginx
+      ports:
+        - containerPort: 80
+
+
