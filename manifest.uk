@@ -347,4 +347,34 @@ spec:
       ports:
         - containerPort: 80
 
+----------------------------------------------------------------------------------------------------------------------
+STATEFULSET
+----------------------------------------------------------------------------------------------------------
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: example-statefulset
+  labels:
+    app: example
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: example
+  serviceName: "example-service"
+  template:
+    metadata:
+      labels:
+        app: example
+    spec:
+      containers:
+      - name: example-container
+        image: nginx:latest # Replace with your desired image
+        ports:
+        - containerPort: 80
+          name: http
+
+-------------------------------------------------------------------------------------------------------------------
+
 
