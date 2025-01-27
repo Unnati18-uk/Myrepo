@@ -1,0 +1,67 @@
+PV
+====================================================
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: local-pv
+  labels:
+    app: local
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  hostPath:
+    path: /mnt/data
+
+====================================================
+
+PVC
+=====
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: local-pvc
+spec:
+  storageClassName: "local-storage"  # Must match the PV's storageClassName
+  accessModes:
+    - ReadWriteOnce  # Should match the PV's accessModes
+  resources:
+    requests:
+      storage: 1Gi  # Must be equal to pvs storage
+=========================================================================
+HOW IT WILL USE WITH DEPLOYMENT
+===================================
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clonefb
+  labels:
+    app: clonefb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: clonefb
+  template:
+    metadata:
+      labels:
+        app: clonefb
+    spec:
+      containers:
+      - name: clonefb
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - mountPath: /var/www/html
+          name: my-volume
+      volumes:
+        - name: my-volume
+          persistentVolumeClaim:
+            claimName: local-pvc
